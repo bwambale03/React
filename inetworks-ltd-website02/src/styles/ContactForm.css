@@ -1,0 +1,89 @@
+.contact-form {
+  max-width: 500px; /* Slightly wider for modern feel */
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  display: grid; /* Grid for better spacing */
+  gap: 1rem;
+}
+
+.contact-form button:disabled {
+  background: #000000;
+  cursor: not-allowed;
+}
+.dark-mode .contact-form {
+  background: #222;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.contact-form h2 {
+  text-align: center;
+  color: #2c3e50;
+}
+
+.dark-mode .contact-form h2 {
+  color: #f1f1f1;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 0; /* Remove margin, use grid gap */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+.dark-mode input,
+.dark-mode textarea {
+  background: #333;
+  color: white;
+  border: 1px solid #555;
+}
+
+.dark-mode input:focus,
+.dark-mode textarea:focus {
+  border-color: #ffcc00;
+}
+
+.contact-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.contact-form button {
+  padding: 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+
+.contact-form button:hover {
+  background: #0056b3;
+}
+
+.error {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.success {
+  color: #2ecc71;
+  text-align: center;
+  font-size: 1rem;
+}

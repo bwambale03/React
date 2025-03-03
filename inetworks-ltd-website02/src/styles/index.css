@@ -1,0 +1,70 @@
+@import './ContactForm.css';
+@import './ServiceCard.css';
+@import './HeroSection.css';
+@import './Footer.css';
+@import './Header.css';
+@import '../pages/Services.css';
+@import './NavBar.css';
+@import '../pages/About.css';
+@import '../pages/Home.css';
+@import '../pages/Services.css';
+@import '../pages/Contact.css';
+
+:root {
+  --color-white: #ffffff;
+  --color-primary: #007bff;
+  --color-primary-dark: #0056b3;
+  --color-text-light: #666;
+  --spacing-medium: 2rem;
+  --spacing-small: 1rem;
+  --border-radius: 12px;
+  --transition-duration: 0.3s;
+  --color-dark-bg: #2c2c2c;
+  --color-primary-light: #66b0ff;
+  --color-text-dark: #2c3e50;
+  --color-text-light-dark: #bdc3c7;
+}
+
+body {
+    background-color: #fff;
+    color: #333;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .dark-mode {
+    background-color: #121212;
+    color: #f1f1f1;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background: #eee;
+  }
+  
+  .dark-mode .navbar {
+    background: #333;
+  }
+  
+  .toggle-btn {
+    padding: 5px 10px;
+    cursor: pointer;
+    border: none;
+    background: #444;
+    color: white;
+    border-radius: 5px;
+  }
+  
+  .dark-mode .toggle-btn {
+    background: #ffcc00;
+    color: black;
+  }
+  
+  .toggle-btn:hover {
+    background: #555;
+
+  }  
+
+
+
