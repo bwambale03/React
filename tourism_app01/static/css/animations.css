@@ -1,0 +1,45 @@
+/* Import Animate.css from CDN (or local copy) */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
+
+/* Custom Animation Overrides */
+.animate__fadeIn {
+    animation-duration: 1s;
+}
+
+.animate__bounceIn {
+    animation-duration: 0.8s;
+}
+
+.animate__delay-1s {
+    animation-delay: 1s;
+}
+
+.animate__delay-2s {
+    animation-delay: 2s;
+}
+
+.animate__delay-3s {
+    animation-delay: 3s;
+}
+
+/* Custom Animation for Hero */
+.hero-animation {
+    animation: heroPulse 3s infinite ease-in-out;
+}
+
+@keyframes heroPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Card Hover Animation */
+.card-hover {
+    animation: cardLift 0.5s ease forwards;
+}
+
+@keyframes cardLift {
+    to {
+        transform: translateY(-10px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+}

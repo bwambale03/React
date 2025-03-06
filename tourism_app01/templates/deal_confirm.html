@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Confirm Deal - WanderLuxe{% endblock %}
+{% block content %}
+    <section class="py-5 vh-100 d-flex align-items-center" style="background: linear-gradient(135deg, #f5f7fa, #c3cfe2);">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card shadow-lg border-0">
+                        <div class="card-body text-center">
+                            <h2 class="mb-4 animate__animated animate__fadeIn">Confirm Your Deal! 🎉</h2>
+                            <h4>{{ event.name }}</h4>
+                            <p class="text-muted">{{ event.description }}</p>
+                            <p class="lead">Expires: {{ event.expires_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                            <hr>
+                            <p class="text-success">Special Offer: 50% Off!</p>
+                            <form action="{{ url_for('routes.deal_payment', deal_id=user_deal.id) }}" method="POST">
+                                <button type="submit" class="btn btn-primary btn-lg mt-3 animate__animated animate__bounceIn">Proceed to Payment</button>
+                            </form>
+                            <a href="{{ url_for('routes.index') }}" class="btn btn-outline-secondary mt-3">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

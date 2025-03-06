@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{{ trip.name }} Itinerary - WanderLuxe{% endblock %}
+{% block content %}
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">{{ trip.name }}</h2>
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- Timeline -->
+                    <div class="timeline">
+                        {% for day in itinerary %}
+                            <div class="timeline-item mb-4">
+                                <div class="timeline-marker"></div>
+                                <div class="card shadow-sm">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Day {{ loop.index }}: {{ day.date.strftime('%Y-%m-%d') }}</h5>
+                                        <p class="card-text"><strong>{{ day.destination.name }}</strong> - {{ day.activity }}</p>
+                                        <small class="text-muted">Weather: {{ day.weather_forecast }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5>Trip Summary</h5>
+                            <p><strong>Dates:</strong> {{ trip.start_date.strftime('%Y-%m-%d') }} to {{ trip.end_date.strftime('%Y-%m-%d') }}</p>
+                            <p><strong>Destinations:</strong> {{ trip.destinations|map(attribute='name')|join(', ') }}</p>
+                            <p><strong>Preferences:</strong> {{ trip.preferences|join(', ') }}</p>
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('download_itinerary', trip_id=trip.id) }}" class="btn btn-primary">Download PDF</a>
+                                <button class="btn btn-outline-secondary" onclick="shareTrip()">Share Trip</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Custom CSS for Timeline -->
+    <style>
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #007bff;
+        }
+        .timeline-item {
+            position: relative;
+        }
+        .timeline-marker {
+            position: absolute;
+            left: -15px;
+            top: 10px;
+            width: 15px;
+            height: 15px;
+            background: #007bff;
+            border-radius: 50%;
+        }
+    </style>
+
+    <!-- Share Function -->
+    <script>
+        function shareTrip() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Trip URL copied to clipboard! Share it with your friends!');
+            });
+        }
+    </script>
+{% endblock %}

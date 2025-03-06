@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Deal Success - WanderLuxe{% endblock %}
+{% block content %}
+    <section class="py-5 vh-100 d-flex align-items-center" style="background: linear-gradient(135deg, #a8edea, #fed6e3);">
+        <div class="container text-center">
+            <div class="card shadow-lg border-0" style="max-width: 500px; margin: 0 auto;">
+                <div class="card-body">
+                    <h2 class="mb-4 animate__animated animate__fadeIn">Success! 🎉</h2>
+                    <h4>You’ve Grabbed the Deal!</h4>
+                    <p class="text-muted">{{ event.name }} is now yours!</p>
+                    <p class="lead">We’ve sent a confirmation to your email.</p>
+                    <div class="animate__animated animate__bounceIn animate__delay-1s">
+                        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <a href="{{ url_for('routes.index') }}" class="btn btn-primary mt-4">Back to Home</a>
+                    <a href="{{ url_for('routes.profile') }}" class="btn btn-outline-primary mt-4">View My Deals</a>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
