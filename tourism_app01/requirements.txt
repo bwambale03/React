@@ -1,0 +1,11 @@
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.7
+python-dotenv==1.0.1
+requests==2.32.3
+Pillow==10.4.0  # For image processing in utils
+reportlab==4.2.0  # For PDFs in utils
+email_validator==2.1.1
+pytest==8.3.5
+flask-testing==0.8.1
+gunicorn==23.0.0

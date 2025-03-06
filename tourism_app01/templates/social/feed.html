@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Community Feed - WanderLuxe{% endblock %}
+{% block content %}
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Travel Community Feed</h2>
+            <div class="row">
+                <div class="col-lg-8">
+                    <!-- New Post Form -->
+                    {% if current_user.is_authenticated %}
+                        <div class="card mb-4 shadow-sm">
+                            <div class="card-body">
+                                <form method="POST" action="{{ url_for('post_to_feed') }}" enctype="multipart/form-data">
+                                    {{ post_form.hidden_tag() }}
+                                    <div class="mb-3">
+                                        <textarea class="form-control" name="content" rows="3" placeholder="Share your travel story..." required></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <input type="file" class="form-control" name="image" accept="image/*">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Post</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Feed Posts -->
+                    {% for post in posts %}
+                        <div class="card mb-4 shadow-sm animate__animated animate__fadeIn">
+                            <div class="card-header d-flex justify-content-between">
+                                <span>{{ post.user.username }}</span>
+                                <small>{{ post.date_posted.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                            <div class="card-body">
+                                {% if post.image_url %}
+                                    <img src="{{ post.image_url }}" class="img-fluid mb-3" alt="Post Image" style="max-height: 300px; object-fit: cover;">
+                                {% endif %}
+                                <p class="card-text">{{ post.content }}</p>
+                                <div class="d-flex gap-3">
+                                    <button class="btn btn-outline-primary btn-sm" onclick="likePost({{ post.id }})">
+                                        Like ({{ post.likes|length }})
+                                    </button>
+                                    <a href="#comments-{{ post.id }}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="collapse">
+                                        Comments ({{ post.comments|length }})
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="collapse" id="comments-{{ post.id }}">
+                                <div class="card-footer">
+                                    {% for comment in post.comments %}
+                                        <p><strong>{{ comment.user.username }}:</strong> {{ comment.content }} <small>{{ comment.date_posted.strftime('%Y-%m-%d') }}</small></p>
+                                    {% endfor %}
+                                    {% if current_user.is_authenticated %}
+                                        <form method="POST" action="{{ url_for('add_comment', post_id=post.id) }}">
+                                            {{ comment_form.hidden_tag() }}
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" name="content" placeholder="Add a comment..." required>
+                                                <button type="submit" class="btn btn-primary">Send</button>
+                                            </div>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function likePost(postId) {
+            fetch(`/like_post/${postId}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+        }
+    </script>
+{% endblock %}

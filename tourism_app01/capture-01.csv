@@ -1,0 +1,7 @@
+
+BSSID, First time seen, Last time seen, channel, Speed, Privacy, Cipher, Authentication, Power, # beacons, # IV, LAN IP, ID-length, ESSID, Key
+B4:A2:5C:63:A2:A8, 2025-03-06 10:09:38, 2025-03-06 10:16:12, 11, 130, WPA2, CCMP, PSK, -28,     3835,       37,   0.  0.  0.  0,  14, FREEDOM CITY-2, 
+
+Station MAC, First time seen, Last time seen, Power, # packets, BSSID, Probed ESSIDs
+F0:5C:77:EE:A4:B1, 2025-03-06 10:09:39, 2025-03-06 10:13:25, -73,       61, B4:A2:5C:63:A2:A8,
+

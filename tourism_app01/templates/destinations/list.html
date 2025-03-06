@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Destinations - WanderLuxe{% endblock %}
+{% block content %}
+    <!-- Destination Filters -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-4">Explore Destinations</h2>
+            <form method="GET" action="{{ url_for('routes.destinations') }}" class="mb-5">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" name="search" class="form-control" placeholder="Search by name..." value="{{ request.args.get('search', '') }}">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="category" class="form-select">
+                            <option value="">All Categories</option>
+                            <option value="beach" {% if request.args.get('category') == 'beach' %}selected{% endif %}>Beach</option>
+                            <option value="mountain" {% if request.args.get('category') == 'mountain' %}selected{% endif %}>Mountain</option>
+                            <option value="city" {% if request.args.get('category') == 'city' %}selected{% endif %}>City</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="sort" class="form-select">
+                            <option value="name" {% if request.args.get('sort') == 'name' %}selected{% endif %}>Sort by Name</option>
+                            <option value="rating" {% if request.args.get('sort') == 'rating' %}selected{% endif %}>Sort by Rating</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Destination Grid -->
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% if destinations.items %}
+                    {% for dest in destinations.items %}
+                        <div class="col">
+                            <div class="card h-100 shadow-sm animate__animated animate__fadeIn">
+                                <img src="{{ dest.image_url }}" class="card-img-top" alt="{{ dest.name }}" style="height: 200px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ dest.name }}</h5>
+                                    <p class="card-text">{{ dest.description | truncate(100) }}</p>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="badge bg-success">{{ dest.rating }} ★</span>
+                                        <a href="{{ url_for('routes.destination_detail', id=dest.id) }}" class="btn btn-outline-primary btn-sm">Discover</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-center">No destinations found. Try adjusting your filters!</p>
+                {% endif %}
+            </div>
+
+            <!-- Pagination -->
+            {% if destinations %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if destinations.has_prev %}
+                            <li class="page-item"><a class="page-link" href="{{ url_for('routes.destinations', page=destinations.prev_num, **request.args) }}">Previous</a></li>
+                        {% endif %}
+                        {% for page_num in destinations.iter_pages() %}
+                            {% if page_num %}
+                                <li class="page-item {% if page_num == destinations.page %}active{% endif %}">
+                                    <a class="page-link" href="{{ url_for('routes.destinations', page=page_num, **request.args) }}">{{ page_num }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled"><span class="page-link">...</span></li>
+                            {% endif %}
+                        {% endfor %}
+                        {% if destinations.has_next %}
+                            <li class="page-item"><a class="page-link" href="{{ url_for('routes.destinations', page=destinations.next_num, **request.args) }}">Next</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}

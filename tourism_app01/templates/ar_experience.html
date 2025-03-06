@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}AR Experience - WanderLuxe{% endblock %}
+{% block content %}
+    <section class="py-5 vh-100 d-flex flex-column justify-content-center align-items-center" style="background: linear-gradient(135deg, #1e3c72, #2a5298); color: white;">
+        <div class="container text-center">
+            <!-- Header -->
+            <h1 class="display-4 animate__animated animate__fadeIn">Step Into {{ destination.name }} with AR!</h1>
+            <p class="lead animate__animated animate__fadeIn animate__delay-1s">{{ ar_data.description if ar_data.description else "Point your device to see " + destination.name + " in 3D glory." }}</p>
+
+            <!-- AR Preview Container -->
+            <div class="card shadow-lg mt-4" style="max-width: 600px; margin: 0 auto;">
+                <div class="card-body p-0">
+                    {% if not ar_data.available %}
+                        <!-- Fallback if no AR model is available -->
+                        <div class="p-5">
+                            <p class="text-warning">{{ ar_data.message }}</p>
+                            <small>Stay tuned for the full 3D AR magic!</small>
+                        </div>
+                    {% else %}
+                        <!-- A-Frame AR Embed with GLTF Model, Lighting, and Shadows -->
+                        <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" vr-mode-ui="enabled: false" renderer="shadowMapEnabled: true;">
+                            <a-marker preset="hiro">
+                                <!-- GLTF Model with Shadow Casting -->
+                                <a-gltf-model
+                                    id="gltf-model"
+                                    src="{{ ar_data.model_url }}"
+                                    scale="0.5 0.5 0.5"
+                                    position="0 0 0"
+                                    rotation="0 0 0"
+                                    shadow="cast: true; receive: true"
+                                    animation="property: rotation; to: 0 {{ '360' if ar_data.auto_rotate else '0' }} 0; loop: {{ 'true' if ar_data.auto_rotate else 'false' }}; dur: {{ ar_data.duration }}">
+                                </a-gltf-model>
+
+                                <!-- Lighting Setup -->
+                                <a-entity light="type: ambient; intensity: 0.4;" position="0 0 0"></a-entity>
+                                <a-entity light="type: directional; intensity: 0.6; castShadow: true;" position="0 2 1" target="#gltf-model"></a-entity>
+                                
+                                <!-- Ground Plane for Shadow Receiving -->
+                                <a-plane
+                                    position="0 -0.01 0"
+                                    rotation="-90 0 0"
+                                    width="4" height="4"
+                                    color="#7BC8A4"
+                                    shadow="receive: true">
+                                </a-plane>
+                            </a-marker>
+                            <a-entity camera></a-entity>
+                        </a-scene>
+                        <div class="overlay-text p-3">
+                            <p class="mb-0">Scan the <a href="https://jeromeetienne.github.io/AR.js/data/images/HIRO.png" target="_blank">Hiro marker</a> with your camera!</p>
+                            <small>Watch {{ destination.name }}’s 3D world unfold with shadows!</small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Instructions & Actions -->
+            <div class="mt-4">
+                <p class="animate__animated animate__fadeIn animate__delay-2s">No AR-ready device? No problem—enjoy the vibe anyway!</p>
+                <div class="d-flex gap-3 justify-content-center">
+                    <a href="{{ url_for('routes.destination_detail', id=destination.id) }}" class="btn btn-outline-light animate__animated animate__bounceIn animate__delay-3s">Back to {{ destination.name }}</a>
+                    {% if ar_data.available %}
+                        <button class="btn btn-primary animate__animated animate__bounceIn animate__delay-3s" onclick="playARSound()">Play Sound</button>
+                        <button id="shadow-toggle" class="btn btn-secondary animate__animated animate__bounceIn animate__delay-3s" onclick="toggleShadows()">Turn Off Shadows</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- External AR Libraries -->
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        a-scene {
+            height: 400px;
+            width: 100%;
+            border-radius: 10px;
+        }
+        .overlay-text {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+    </style>
+
+    <!-- Custom JS -->
+    <script>
+        function playARSound() {
+            const audio = new Audio("{{ ar_data.sound_url if ar_data.available else url_for('static', filename='sounds/ar_welcome.mp3') }}");
+            audio.play().catch(() => alert("Welcome to {{ destination.name }}’s AR world! Imagine the sounds!"));
+        }
+
+        function toggleShadows() {
+            const model = document.querySelector('#gltf-model');
+            const button = document.querySelector('#shadow-toggle');
+            const shadowsOn = model.getAttribute('shadow').cast;  // Check current state
+
+            if (shadowsOn) {
+                model.setAttribute('shadow', 'cast: false; receive: false');
+                button.textContent = 'Turn On Shadows';
+            } else {
+                model.setAttribute('shadow', 'cast: true; receive: true');
+                button.textContent = 'Turn Off Shadows';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const scene = document.querySelector('a-scene');
+            if (scene && !scene.hasLoaded) {
+                scene.addEventListener('loaded', () => console.log('AR Scene Loaded'));
+                scene.addEventListener('error', (e) => console.error('AR Scene Error:', e));
+            }
+        });
+    </script>
+{% endblock %}
