@@ -29,7 +29,20 @@ class User(UserMixin, db.Model):
     trips = db.relationship('Trip', backref='user', lazy=True)
     badges = db.relationship('Badge', secondary=user_badges, backref='users')
 
+    
+    @staticmethod
+    def get_stats():
+        total_users = User.query.count()
+        total_reviews = Review.query.count()
+        total_trips = Trip.query.count()
+        return {
+            "happy_travelers": total_users,
+            "reviews_written": total_reviews,
+            "trips_planned": total_trips
+        }
+        
     def __repr__(self):
+        
         return f'<User {self.username}>'
 
 class Destination(db.Model):

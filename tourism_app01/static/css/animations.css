@@ -37,6 +37,21 @@
     animation: cardLift 0.5s ease forwards;
 }
 
+/* spin effect css */
+.animate__rotateOut {
+    animation: rotateOut 2s;
+}
+
+@keyframes rotateOut {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+/* end of spin effect css*/
+
 @keyframes cardLift {
     to {
         transform: translateY(-10px);

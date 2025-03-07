@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeARPreview();
     initializeCountdownTimers();
     initializePaymentForm();
+    initializeSpinGlobe();
+    initializeTravelQuiz();
+    initializeNewsSection();
+    initializeQuickMessageForm();
 });
 
 // Form Handling
@@ -200,7 +204,8 @@ function initializeTrendingHashtags() {
     }
 }
 
-// AR Preview Handling
+// AR Preview Handling// ... Previous code (unchanged) ...
+
 function initializeARPreview() {
     document.querySelectorAll('.ar-preview-btn').forEach(button => {
         button.addEventListener('click', () => {
@@ -243,12 +248,13 @@ function initializeCountdownTimers() {
         setInterval(updateTimer, 1000); // Update every second
 
     });
-    // handle grab deal button
+    
+    // handle grab-deal-btn
     document.querySelectorAll('.grab-deal-btn').forEach(button => {
         button.addEventListener('click', () => {
-            concole.log('button clicked!')
-            const eventId = button.dataset.eventId;
-            window.location.href = `/grab-deal/${eventId}` // redirecting to comfirm submission
+            console.log('Button Clicked!')
+            const eventId = button.dataset.eventId
+            window.location.href = `/grab-deal/${eventId}`
         })
     })
 }
@@ -283,6 +289,207 @@ function initializePaymentForm() {
 
             // Submit if valid
             paymentForm.submit();
+        });
+    }
+}
+
+
+// Spin the Globe Handling
+function initializeSpinGlobe() {
+    const spinButton = document.getElementById('spin-globe-btn');
+    const resultDiv = document.getElementById('globe-result');
+    const resultImage = document.getElementById('result-image');
+    const resultName = document.getElementById('result-name');
+    const resultDescription = document.getElementById('result-description');
+    const resultBestTime = document.getElementById('result-best-time');
+    const resultRating = document.getElementById('result-rating');
+    const resultCategory = document.getElementById('result-category');
+    const resultLink = document.getElementById('result-link');
+
+    if (spinButton) {
+        spinButton.addEventListener('click', async () => {
+            spinButton.disabled = true;
+            spinButton.textContent = 'Spinning...';
+            resultDiv.style.display = 'none';
+
+            // Simulate spinning animation
+            spinButton.classList.add('animate__rotateOut');
+            await new Promise(resolve => setTimeout(resolve, 2000)); // 2s spin effect
+
+            try {
+                const response = await fetch('/spin-globe');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch destination');
+                }
+                const data = await response.json();
+
+                resultImage.src = data.image_url;
+                resultName.textContent = data.name;
+                resultDescription.textContent = data.description;
+                resultBestTime.textContent = `Best Time: ${data.best_time}`;
+                resultRating.textContent = `Rating: ${data.rating}`;
+                resultCategory.textContent = `Category: ${data.category}`;
+                resultLink.href = `/destination_detail_dynamic/${data.id}`;
+                resultLink.textContent = `Explore ${data.name}`;
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                console.error('Spin Globe error:', error);
+                alert(error.message || 'Failed to spin the globe!');
+            }
+
+            spinButton.classList.remove('animate__rotateOut');
+            spinButton.textContent = 'Spin Again!';
+            spinButton.disabled = false;
+        });
+    }
+}
+
+
+// Travel Quiz Handling
+function initializeTravelQuiz() {
+    const quizContainer = document.getElementById('quiz-container');
+    const quizQuestion = document.getElementById('quiz-question');
+    const quizOptions = document.getElementById('quiz-options');
+    const quizSubmit = document.getElementById('quiz-submit');
+    const quizResult = document.getElementById('quiz-result');
+    const quizNext = document.getElementById('quiz-next');
+    let currentQuestion = null;
+
+    if (quizContainer) {
+        loadQuizQuestion();
+
+        quizSubmit.addEventListener('click', () => {
+            const selectedOption = document.querySelector('input[name="quiz-option"]:checked');
+            if (selectedOption) {
+                checkAnswer(selectedOption.value);
+            } else {
+                alert('Please select an answer!');
+            }
+        });
+
+        quizNext.addEventListener('click', () => {
+            quizResult.textContent = '';
+            quizNext.style.display = 'none';
+            quizSubmit.disabled = false;
+            loadQuizQuestion();
+        });
+    }
+
+    async function loadQuizQuestion() {
+        try {
+            const response = await fetch('/travel-quiz');
+            const data = await response.json();
+            currentQuestion = data.question;
+            quizQuestion.textContent = data.question;
+            quizOptions.innerHTML = data.options.map((option, index) => `
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" name="quiz-option" id="option${index}" value="${option}">
+                    <label class="form-check-label" for="option${index}">${option}</label>
+                </div>
+            `).join('');
+            quizSubmit.disabled = false;
+        } catch (error) {
+            console.error('Quiz load error:', error);
+            alert('Failed to load quiz!');
+        }
+    }
+
+    async function checkAnswer(answer) {
+        try {
+            const response = await fetch('/travel-quiz', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: currentQuestion, answer: answer })
+            });
+            const data = await response.json();
+            quizResult.textContent = data.message;
+            quizSubmit.disabled = true;
+            quizNext.style.display = 'block';
+            if (data.correct) {
+                quizResult.classList.add('text-success');
+            } else {
+                quizResult.classList.add('text-danger');
+            }
+        } catch (error) {
+            console.error('Quiz check error:', error);
+            alert('Failed to check answer!');
+        }
+    }
+}
+
+
+// News Section Handling
+function initializeNewsSection() {
+    const newsCarousel = document.getElementById('news-carousel');
+
+    if (newsCarousel) {
+        fetchNews();
+
+        // Auto-scroll every 5 seconds
+        setInterval(() => {
+            const firstItem = newsCarousel.firstElementChild;
+            newsCarousel.appendChild(firstItem.cloneNode(true));
+            firstItem.remove();
+        }, 5000);
+    }
+
+    async function fetchNews() {
+        try {
+            const response = await fetch('/news');
+            const newsItems = await response.json();
+            renderNews(newsItems);
+        } catch (error) {
+            console.error('News fetch error:', error);
+            newsCarousel.innerHTML = '<p>Failed to load news!</p>';
+        }
+    }
+
+    function renderNews(newsItems) {
+        newsCarousel.innerHTML = newsItems.map(item => `
+            <div class="news-card card shadow-sm mx-3" style="min-width: 300px;">
+                <img src="${item.image_url}" class="card-img-top" alt="${item.title}">
+                <div class="card-body">
+                    <h5 class="card-title">${item.title}</h5>
+                    <p class="card-text">${item.snippet}</p>
+                    <a href="/news/${item.id}" class="btn btn-primary read-more-btn">Read More</a>
+                </div>
+            </div>
+        `).join('');
+
+        // No need for individual button listeners since it's now a link
+    }
+}
+
+// Quick Message Form Handling
+function initializeQuickMessageForm() {
+    const messageForm = document.getElementById('quick-message-form');
+    const messageResult = document.getElementById('message-result');
+
+    if (messageForm) {
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(messageForm);
+
+            try {
+                const response = await fetch('/send-message', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                messageResult.textContent = data.message;
+                if (data.success) {
+                    messageResult.classList.add('text-success');
+                    messageForm.reset();
+                } else {
+                    messageResult.classList.add('text-danger');
+                }
+            } catch (error) {
+                console.error('Message submission error:', error);
+                messageResult.textContent = 'Failed to send message!';
+                messageResult.classList.add('text-danger');
+            }
         });
     }
 }
