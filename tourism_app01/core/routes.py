@@ -532,3 +532,85 @@ def send_message():
     print(f"Message from {name} ({email}): {message}")
 
     return jsonify({"success": True, "message": "Message sent successfully!"})
+
+from flask import send_file
+@bp.route('/download-file')
+def download_file():
+    return send_file('path/to/file.pdf', as_attachment=True)
+
+import random
+from datetime import datetime, timedelta
+import requests
+from flask import request, render_template, jsonify
+
+@bp.route('/trip-planner', methods=['GET', 'POST'])
+def trip_planner():
+    # Mock recommendations for Step 1
+    recommendations = [
+        {"name": "Kampala", "rating": 4.5, "reason": "Vibrant city life and cultural heritage."},
+        {"name": "Bwindi", "rating": 5.0, "reason": "Best for gorilla trekking."},
+        {"name": "Murchison Falls", "rating": 4.8, "reason": "Stunning waterfalls and wildlife."}
+    ]
+
+    if request.method == 'POST':
+        data = request.form
+        trip_name = data.get('trip_name')
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        destinations = request.form.getlist('destinations')
+        preferences = request.form.getlist('preferences')
+        budget = float(data.get('budget'))
+
+        # Calculate duration
+        start = datetime.strptime(start_date, '%Y-%m-%d')
+        end = datetime.strptime(end_date, '%Y-%m-%d')
+        duration = (end - start).days + 1
+
+        # Mock weather forecast (replace with real API call)
+        def get_weather_forecast(city, date):
+            # Mock data (use OpenWeatherMap API in production)
+            return random.choice(["Sunny, 25°C", "Rainy, 20°C", "Cloudy, 22°C"])
+
+        # Generate itinerary
+        itinerary = {
+            "title": f"{trip_name} ({start_date} to {end_date})",
+            "days": [],
+            "total_cost": 0,
+            "summary": {
+                "dates": f"{start_date} to {end_date}",
+                "destinations": ", ".join(destinations),
+                "preferences": ", ".join(preferences)
+            }
+        }
+
+        cost_per_day = budget / duration if duration > 0 else budget
+        activity_costs = {"gorilla_trekking": 500, "birdwatching": 100, "boat_ride": 150, "cultural_tour": 200}
+        activities_map = {
+            "relax": ["boat_ride", "cultural_tour"],
+            "adventure": ["gorilla_trekking", "boat_ride"],
+            "culture": ["cultural_tour", "birdwatching"]
+        }
+
+        current_date = start
+        for day in range(duration):
+            dest = destinations[day % len(destinations)]
+            day_activities = []
+            for pref in preferences:
+                day_activities.extend(activities_map.get(pref, []))
+            day_activities = random.sample(list(set(day_activities)), min(2, len(day_activities))) if day_activities else ["Explore"]
+            day_cost = sum(activity_costs.get(act, 0) for act in day_activities)
+            day_plan = {
+                "date": current_date.strftime('%Y-%m-%d'),
+                "destination": dest,
+                "activity": ", ".join([act.replace('_', ' ').title() for act in day_activities]),
+                "weather_forecast": get_weather_forecast(dest, current_date),
+                "cost": day_cost
+            }
+            itinerary["days"].append(day_plan)
+            itinerary["total_cost"] += day_cost + (cost_per_day - day_cost)
+            current_date += timedelta(days=1)
+
+        itinerary["total_cost"] = min(itinerary["total_cost"], budget)
+        return jsonify(itinerary)
+
+    return render_template('trip_planner.html', recommendations=recommendations)

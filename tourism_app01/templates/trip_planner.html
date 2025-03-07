@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}Trip Planner - WanderLuxe{% endblock %}
+{% block content %}
+    <section class="py-5 vh-100 d-flex align-items-center" style="background: linear-gradient(135deg, #f5f7fa, #c3cfe2);">
+        <div class="container">
+            <h2 class="text-center mb-4 animate__animated animate__bounceIn">Plan Your Uganda Adventure! 🌍</h2>
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <!-- Progress Bar -->
+                    <ul class="nav nav-pills justify-content-center mb-4" id="wizard-steps">
+                        <li class="nav-item"><a class="nav-link active" href="#step1" data-bs-toggle="tab">1. Basics</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#step2" data-bs-toggle="tab">2. Destinations</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#step3" data-bs-toggle="tab">3. Preferences</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#step4" data-bs-toggle="tab">4. Finish</a></li>
+                    </ul>
+
+                    <!-- Form -->
+                    <form id="trip-planner-form" class="row g-3">
+                        <div class="tab-content">
+                            <!-- Step 1: Basics -->
+                            <div class="tab-pane fade show active" id="step1">
+                                <div class="mb-3">
+                                    <h5>Suggested Destinations</h5>
+                                    {% for rec in recommendations %}
+                                        <p>{{ rec.name }} ({{ rec.rating }}*) - {{ rec.reason }}</p>
+                                    {% endfor %}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="trip_name" class="form-label">Trip Name</label>
+                                    <input type="text" class="form-control" id="trip_name" name="trip_name" placeholder="e.g., Uganda Escape" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="start_date" class="form-label">Start Date</label>
+                                        <input type="date" class="form-control" id="start_date" name="start_date" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="end_date" class="form-label">End Date</label>
+                                        <input type="date" class="form-control" id="end_date" name="end_date" required>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-primary next-step">Next</button>
+                            </div>
+
+                            <!-- Step 2: Destinations -->
+                            <div class="tab-pane fade" id="step2">
+                                <div class="mb-3">
+                                    <label for="destinations" class="form-label">Add Destinations</label>
+                                    <select class="form-select" id="destinations" name="destinations" multiple required>
+                                        <option value="Kampala">Kampala</option>
+                                        <option value="Jinja">Jinja</option>
+                                        <option value="Bwindi">Bwindi Impenetrable Forest</option>
+                                        <option value="Murchison">Murchison Falls</option>
+                                    </select>
+                                    <small class="form-text">Hold Ctrl/Cmd to select multiple.</small>
+                                </div>
+                                <button type="button" class="btn btn-secondary prev-step">Back</button>
+                                <button type="button" class="btn btn-primary next-step">Next</button>
+                            </div>
+
+                            <!-- Step 3: Preferences -->
+                            <div class="tab-pane fade" id="step3">
+                                <div class="mb-3">
+                                    <label class="form-label">Travel Style</label>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="relax" name="preferences" value="relax">
+                                        <label class="form-check-label" for="relax">Relaxation</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="adventure" name="preferences" value="adventure">
+                                        <label class="form-check-label" for="adventure">Adventure</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" class="form-check-input" id="culture" name="preferences" value="culture">
+                                        <label class="form-check-label" for="culture">Culture</label>
+                                    </div>
+                                </div>
+                                <!-- Add Budget Input Here -->
+                                <div class="mb-3">
+                                    <label for="budget" class="form-label">Budget (USD)</label>
+                                    <input type="number" class="form-control" id="budget" name="budget" min="100" required>
+                                </div>
+                                <button type="button" class="btn btn-secondary prev-step">Back</button>
+                                <button type="button" class="btn btn-primary next-step">Next</button>
+                            </div>
+
+                            <!-- Step 4: Finish -->
+                            <div class="tab-pane fade" id="step4">
+                                <h4>Review Your Trip</h4>
+                                <p>Trip Name: <strong id="preview-name"></strong></p>
+                                <p>Dates: <strong id="preview-dates"></strong></p>
+                                <p>Destinations: <strong id="preview-destinations"></strong></p>
+                                <p>Preferences: <strong id="preview-preferences"></strong></p>
+                                <p>Budget: <strong id="preview-budget"></strong></p>
+                                <button type="button" class="btn btn-secondary prev-step">Back</button>
+                                <button type="submit" class="btn btn-success">Create Trip</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Itinerary Display -->
+                    <div id="itinerary-display" class="mt-5" style="display: none;">
+                        <div class="card shadow-lg p-4 bg-white rounded-3 animate__animated animate__fadeIn">
+                            <h3 id="itinerary-title" class="text-center mb-3"></h3>
+                            <ul id="itinerary-list" class="list-group"></ul>
+                            <p id="itinerary-cost" class="mt-3 text-center"></p>
+                            <a href="{{ url_for('routes.index') }}" class="btn btn-outline-secondary mt-3">Back to Home</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Custom JS for Wizard and Itinerary -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nextButtons = document.querySelectorAll('.next-step');
+            const prevButtons = document.querySelectorAll('.prev-step');
+            const tabs = document.querySelectorAll('.tab-pane');
+            const navLinks = document.querySelectorAll('#wizard-steps .nav-link');
+            const tripForm = document.getElementById('trip-planner-form');
+            const itineraryDisplay = document.getElementById('itinerary-display');
+            const itineraryTitle = document.getElementById('itinerary-title');
+            const itineraryList = document.getElementById('itinerary-list');
+            const itineraryCost = document.getElementById('itinerary-cost');
+
+            // Wizard Navigation
+            nextButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const currentTab = document.querySelector('.tab-pane.show');
+                    const nextTab = currentTab.nextElementSibling;
+                    if (nextTab) {
+                        currentTab.classList.remove('show', 'active');
+                        nextTab.classList.add('show', 'active');
+                        updateNav(nextTab.id);
+                        updatePreview();
+                    }
+                });
+            });
+
+            prevButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const currentTab = document.querySelector('.tab-pane.show');
+                    const prevTab = currentTab.previousElementSibling;
+                    if (prevTab) {
+                        currentTab.classList.remove('show', 'active');
+                        prevTab.classList.add('show', 'active');
+                        updateNav(prevTab.id);
+                    }
+                });
+            });
+
+            function updateNav(activeId) {
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${activeId}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+
+            function updatePreview() {
+                document.getElementById('preview-name').textContent = document.getElementById('trip_name').value || 'N/A';
+                document.getElementById('preview-dates').textContent = `${document.getElementById('start_date').value || 'N/A'} to ${document.getElementById('end_date').value || 'N/A'}`;
+                const selectedDests = Array.from(document.getElementById('destinations').selectedOptions).map(opt => opt.value).join(', ') || 'None';
+                document.getElementById('preview-destinations').textContent = selectedDests;
+                const prefs = Array.from(document.querySelectorAll('input[name="preferences"]:checked')).map(cb => cb.value).join(', ') || 'None';
+                document.getElementById('preview-preferences').textContent = prefs;
+                document.getElementById('preview-budget').textContent = `$${document.getElementById('budget').value || '0'}`;
+            }
+
+            // Form Submission for Itinerary
+            tripForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(tripForm);
+
+                try {
+                    const response = await fetch('/trip-planner', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+
+                    itineraryTitle.textContent = data.title;
+                    itineraryList.innerHTML = data.days.map(day => `<li class="list-group-item">${day}</li>`).join('');
+                    itineraryCost.textContent = `Estimated Cost: $${data.total_cost.toFixed(2)} (Within $${formData.get('budget')} budget)`;
+                    itineraryDisplay.style.display = 'block';
+                    itineraryDisplay.classList.add('animate__fadeIn');
+                    setTimeout(() => itineraryDisplay.classList.remove('animate__fadeIn'), 1000);
+                } catch (error) {
+                    console.error('Trip planner error:', error);
+                    alert('Failed to plan trip!');
+                }
+            });
+        });
+    </script>
+{% endblock %}
