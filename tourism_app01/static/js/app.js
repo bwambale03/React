@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeTravelQuiz();
     initializeNewsSection();
     initializeQuickMessageForm();
+    initializeTripPlanner();
 });
 
 // Form Handling
@@ -494,7 +495,122 @@ function initializeQuickMessageForm() {
     }
 }
 
-// Utility function to fetch JSON safely
+// Trip Planner Handling
+function initializeTripPlanner() {
+    const tripForm = document.getElementById('trip-planner-form');
+    const itineraryDisplay = document.getElementById('itinerary-display');
+    const itineraryCost = document.getElementById('itinerary-cost');
+    const nextButtons = document.querySelectorAll('.next-step');
+    const prevButtons = document.querySelectorAll('.prev-step');
+    const tabs = document.querySelectorAll('.tab-pane');
+    const navLinks = document.querySelectorAll('#wizard-steps .nav-link');
+
+    // Wizard Navigation
+    nextButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const currentTab = document.querySelector('.tab-pane.show');
+            const nextTab = currentTab.nextElementSibling;
+            if (nextTab) {
+                currentTab.classList.remove('show', 'active');
+                nextTab.classList.add('show', 'active');
+                updateNav(nextTab.id);
+                updatePreview();
+            }
+        });
+    });
+
+    prevButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const currentTab = document.querySelector('.tab-pane.show');
+            const prevTab = currentTab.previousElementSibling;
+            if (prevTab) {
+                currentTab.classList.remove('show', 'active');
+                prevTab.classList.add('show', 'active');
+                updateNav(prevTab.id);
+            }
+        });
+    });
+
+    function updateNav(activeId) {
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${activeId}`) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    function updatePreview() {
+        document.getElementById('preview-name').textContent = document.getElementById('trip_name').value || 'N/A';
+        document.getElementById('preview-dates').textContent = `${document.getElementById('start_date').value || 'N/A'} to ${document.getElementById('end_date').value || 'N/A'}`;
+        const selectedDests = Array.from(document.getElementById('destinations').selectedOptions).map(opt => opt.value).join(', ') || 'None';
+        document.getElementById('preview-destinations').textContent = selectedDests;
+        const prefs = Array.from(document.querySelectorAll('input[name="preferences"]:checked')).map(cb => cb.value).join(', ') || 'None';
+        document.getElementById('preview-preferences').textContent = prefs;
+    }
+
+    // Form Submission for Itinerary
+    if (tripForm) {
+        tripForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(tripForm);
+
+            try {
+                const response = await fetch('/trip-planner', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                // Mock trip and itinerary data for display
+                const trip = {
+                    name: document.getElementById('trip_name').value,
+                    start_date: document.getElementById('start_date').value,
+                    end_date: document.getElementById('end_date').value,
+                    destinations: Array.from(document.getElementById('destinations').selectedOptions).map(opt => opt.value),
+                    preferences: Array.from(document.querySelectorAll('input[name="preferences"]:checked')).map(cb => cb.value)
+                };
+                const itinerary = data.days.map((day, index) => ({
+                    date: new Date(document.getElementById('start_date').value).addDays(index).toISOString().split('T')[0],
+                    destination: day.split(': ')[1].split(' - ')[0],
+                    activity: day.split(' - ')[1].split(' (Cost: ')[0],
+                    weather_forecast: "Sunny" // Mock weather
+                }));
+
+                // Update display
+                document.querySelector('#itinerary-display h2').textContent = trip.name;
+                document.querySelector('.timeline').innerHTML = itinerary.map(day => `
+                    <div class="timeline-item mb-4">
+                        <div class="timeline-marker"></div>
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title">Day ${itinerary.indexOf(day) + 1}: ${day.date}</h5>
+                                <p class="card-text"><strong>${day.destination}</strong> - ${day.activity}</p>
+                                <small class="text-muted">Weather: ${day.weather_forecast}</small>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                itineraryCost.textContent = `Estimated Cost: $${data.total_cost.toFixed(2)}`;
+                itineraryDisplay.style.display = 'block';
+                itineraryDisplay.classList.add('animate__fadeIn');
+                setTimeout(() => itineraryDisplay.classList.remove('animate__fadeIn'), 1000);
+            } catch (error) {
+                console.error('Trip planner error:', error);
+                alert('Failed to plan trip!');
+            }
+        });
+    }
+
+    // Polyfill for Date.addDays
+    Date.prototype.addDays = function(days) {
+        const date = new Date(this.valueOf());
+        date.setDate(date.getDate() + days);
+        return date;
+    };
+}
+
+
 async function fetchJSON(url, options = {}) {
     try {
         const response = await fetch(url, {
