@@ -22,6 +22,12 @@ def create_app():
             db.session.add(Destination(name="Tokyo", description="City of Lights"))
             db.session.commit()
             
+        # Seed Ugandan Destinations
+        if not Destination.query.filter_by(location="Uganda").first():
+            db.session.add(Destination(name="Kampala", location="Uganda", description="Vibrant capital city", image_url="https://source.unsplash.com/800x600/?kampala"))
+            db.session.add(Destination(name="Jinja", location="Uganda", description="Source of the Nile", image_url="https://source.unsplash.com/800x600/?jinja"))
+            db.session.commit()
+            
         # seed events
         if not Event.query.first():
             from datetime import datetime, timedelta

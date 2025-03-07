@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, jsonify, abort
 from flask_login import login_required, current_user, login_user, logout_user
 from core.models import db, User, Destination, Trip, Review, Post, Comment, Subscriber, Event, UserDeal
 from core import utils
@@ -54,7 +54,8 @@ def index():
     featured_trips = Destination.query.order_by(Destination.rating.desc()).limit(3).all()
     testimonials = Review.query.join(User).limit(5).all()
     active_events = Event.query.filter(Event.expires_at > datetime.utcnow()).all()
-    return render_template('index.html', featured_trips=featured_trips, testimonials=testimonials, active_events=active_events)
+    stats = User.get_stats()
+    return render_template('index.html', featured_trips=featured_trips, testimonials=testimonials, active_events=active_events, stats=stats)
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -369,3 +370,165 @@ def deal_success(deal_id):
 '''
     Deal Processing Routes end here 
 '''
+
+import random
+
+@bp.route('/spin-globe')
+def spin_globe():
+    destinations = Destination.query.filter_by(location="Uganda").all()
+    if not destinations:
+        return jsonify({"error": "No Ugandan destinations available"})
+    random_dest = random.choice(destinations)
+    return jsonify({
+        "id": random_dest.id,
+        "name": random_dest.name,
+        "image_url": random_dest.image_url or url_for('static', filename='imgs/destinations/hero.jpg'),
+        "description": random_dest.description,
+        "best_time": random_dest.best_time or "Anytime",
+        "rating": float(random_dest.rating) if random_dest.rating else "Not rated yet",
+        "category": random_dest.category or "General",
+        "location": random_dest.location
+    })
+
+import requests
+@bp.route('/destination_detail_dynamic/<int:id>')
+def destination_detail_dynamic(id):
+    # Try to get the destination from the DB
+    destination = Destination.query.get(id)
+    if not destination:
+        # If not in DB, fetch dynamically from an API
+        try:
+            # Using OpenTripMap API to get Ugandan destination details
+            api_key = "YOUR_OPENTRIPMAP_API_KEY"  # Get your free API key from OpenTripMap
+            url = f"https://api.opentripmap.com/0.1/en/places/geoname?name=Uganda&country=UG&apikey={api_key}"
+            response = requests.get(url).json()
+            
+            # Check if API returned valid data
+            if "error" in response or not response.get("name"):
+                abort(404, description="Destination not found via API.")
+            
+            # Mock a destination object with API data
+            destination = Destination(
+                id=id,
+                name=response.get("name", "Unknown"),
+                description=f"Explore {response.get('name', 'a place')} in Uganda.",
+                image_url=f"https://source.unsplash.com/800x600/?{response.get('name', 'uganda')}",
+                location="Uganda",
+                best_time="Anytime",
+                rating=4.0,  # Placeholder
+                category="Cultural"
+            )
+        except Exception as e:
+            abort(404, description=f"Failed to fetch destination: {str(e)}")
+
+    return render_template('destination_detail.html', destination=destination)
+
+
+@bp.route('/travel-quiz', methods=['GET', 'POST'])
+def travel_quiz():
+    # Sample quiz questions about Uganda
+    quiz_data = [
+        {
+            "question": "What is the capital city of Uganda?",
+            "options": ["Nairobi", "Kampala", "Dar es Salaam", "Entebbe"],
+            "correct_answer": "Kampala"
+        },
+        {
+            "question": "Which river is known as the source of the Nile in Uganda?",
+            "options": ["Congo River", "White Nile", "Blue Nile", "Zambezi River"],
+            "correct_answer": "White Nile"
+        },
+        {
+            "question": "What is the official language of Uganda?",
+            "options": ["Swahili", "English", "French", "Luganda"],
+            "correct_answer": "English"
+        }
+    ]
+
+    if request.method == 'POST':
+        user_answer = request.json.get('answer')
+        current_question = request.json.get('question')
+        correct_answer = next(q["correct_answer"] for q in quiz_data if q["question"] == current_question)
+        return jsonify({"correct": user_answer == correct_answer, "message": "Correct!" if user_answer == correct_answer else "Try again!"})
+
+    # For GET, return a random question
+    question = random.choice(quiz_data)
+    return jsonify({"question": question["question"], "options": question["options"]})
+
+@bp.route('/news')
+def news():
+    # Sample news data about Ugandan species and attractions
+    news_data = [
+        {
+            "id": 1,
+            "title": "Mountain Gorillas in Bwindi",
+            "image_url": "https://source.unsplash.com/800x600/?gorilla,uganda",
+            "snippet": "Bwindi Impenetrable National Park hosts half the world’s mountain gorillas...",
+            "details": "Bwindi Impenetrable National Park, a UNESCO site, is home to over 400 mountain gorillas. Trek through dense forests to witness these gentle giants in their natural habitat. The park also boasts 348 bird species and 120 mammals, making it a biodiversity hotspot."
+        },
+        {
+            "id": 2,
+            "title": "Murchison Falls Spectacle",
+            "image_url": "https://source.unsplash.com/800x600/?waterfall,uganda",
+            "snippet": "Murchison Falls National Park features the Nile River rushing through a narrow gorge...",
+            "details": "Murchison Falls National Park, Uganda’s largest, showcases the Nile River squeezing through a 7-meter gorge to create the stunning Murchison Falls. Enjoy boat rides for birdwatching (451 species) and spot wildlife like hippos, crocodiles, and elephants across 76 mammal species."
+        },
+        {
+            "id": 3,
+            "title": "Birdwatching at Lake Bunyonyi",
+            "image_url": "https://source.unsplash.com/800x600/?lake,bird,uganda",
+            "snippet": "Lake Bunyonyi, Uganda’s deepest lake, is a birdwatcher’s paradise...",
+            "details": "Lake Bunyonyi in southwestern Uganda is a serene spot for birdwatching, hosting species like herons, egrets, and grey crowned cranes. With 20 islands to explore by wooden boat, it’s also a safe swimming destination amidst stunning landscapes."
+        }
+    ]
+    return jsonify(news_data)
+
+@bp.route('/news/<int:id>')
+def news_detail(id):
+    # Sample news data (could be from a DB in a real app)
+    news_data = [
+        {
+            "id": 1,
+            "title": "Mountain Gorillas in Bwindi",
+            "image_url": "https://source.unsplash.com/800x600/?gorilla,uganda",
+            "snippet": "Bwindi Impenetrable National Park hosts half the world’s mountain gorillas...",
+            "details": "Bwindi Impenetrable National Park, a UNESCO site, is home to over 400 mountain gorillas. Trek through dense forests to witness these gentle giants in their natural habitat. The park also boasts 348 bird species and 120 mammals, making it a biodiversity hotspot."
+        },
+        {
+            "id": 2,
+            "title": "Murchison Falls Spectacle",
+            "image_url": "https://source.unsplash.com/800x600/?waterfall,uganda",
+            "snippet": "Murchison Falls National Park features the Nile River rushing through a narrow gorge...",
+            "details": "Murchison Falls National Park, Uganda’s largest, showcases the Nile River squeezing through a 7-meter gorge to create the stunning Murchison Falls. Enjoy boat rides for birdwatching (451 species) and spot wildlife like hippos, crocodiles, and elephants across 76 mammal species."
+        },
+        {
+            "id": 3,
+            "title": "Birdwatching at Lake Bunyonyi",
+            "image_url": "https://source.unsplash.com/800x600/?lake,bird,uganda",
+            "snippet": "Lake Bunyonyi, Uganda’s deepest lake, is a birdwatcher’s paradise...",
+            "details": "Lake Bunyonyi in southwestern Uganda is a serene spot for birdwatching, hosting species like herons, egrets, and grey crowned cranes. With 20 islands to explore by wooden boat, it’s also a safe swimming destination amidst stunning landscapes."
+        }
+    ]
+    
+    news_item = next((item for item in news_data if item["id"] == id), None)
+    if not news_item:
+        abort(404, description="News item not found.")
+    
+    return render_template('news_detail.html', news=news_item)
+
+@bp.route('/send-message', methods=['POST'])
+def send_message():
+    data = request.form
+    name = data.get('name')
+    email = data.get('email')
+    message = data.get('message')
+
+    # Basic validation
+    if not all([name, email, message]):
+        return jsonify({"success": False, "message": "All fields are required!"}), 400
+
+    # In a real app, you'd save to DB or send an email here
+    # For now, just log the message
+    print(f"Message from {name} ({email}): {message}")
+
+    return jsonify({"success": True, "message": "Message sent successfully!"})

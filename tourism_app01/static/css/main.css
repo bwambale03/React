@@ -177,6 +177,118 @@ body {
     font-size: 0.8rem;
 }
 
+/* News Section Styles */
+#news-carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+.news-card {
+    flex: 0 0 auto;
+    width: 300px;
+    margin: 0 10px;
+    transition: transform 0.3s ease;
+}
+
+.news-card img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.news-card:hover {
+    transform: scale(1.05);
+}
+
+@keyframes slideLeft {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-310px); }
+}
+
+
+/* Quick Message Section Styles */
+.quick-message-section {
+    background-color: #2c3e50;
+    color: #ffffff;
+    padding: 40px 0;
+}
+
+.quick-message-section h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    animation: fadeIn 1s ease-in;
+}
+
+.quick-message-section .lead {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+#quick-message-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#quick-message-form .col-md-3,
+#quick-message-form .col-md-4,
+#quick-message-form .col-md-2 {
+    display: flex;
+    align-items: center;
+}
+
+#quick-message-form input,
+#quick-message-form textarea {
+    background-color: #34495e;
+    border: 1px solid #46637f;
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 10px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#quick-message-form input:focus,
+#quick-message-form textarea:focus {
+    border-color: #1abc9c;
+    box-shadow: 0 0 5px rgba(26, 188, 156, 0.5);
+    outline: none;
+}
+
+#quick-message-form textarea {
+    height: 100px;
+    resize: none;
+}
+
+#quick-message-form .btn-primary {
+    background-color: #1abc9c;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+#quick-message-form .btn-primary:hover {
+    background-color: #16a085;
+}
+
+#message-result {
+    font-size: 1.1rem;
+    margin-top: 1rem;
+}
+
+#message-result.text-success {
+    color: #2ecc71;
+}
+
+#message-result.text-danger {
+    color: #e74c3c;
+}
+
+/* Animation for fade-in effect */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
 @font-face {
     font-family: 'Roboto';
     src: url('/static/fonts/Roboto-Regular.ttf') format('truetype');
