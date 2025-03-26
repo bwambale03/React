@@ -1,0 +1,33 @@
+[
+    {
+      "id": 1,
+      "name": "Rwenzori Mountains",
+      "image": "/images/rwenzori.jpg",
+      "description": "Explore the majestic Rwenzori Mountains, known as the 'Mountains of the Moon.' Home to stunning glaciers, unique flora, and challenging trekking routes.",
+      "rating": 4.8,
+      "price": 1200,
+      "currency": "USD",
+      "location": "Uganda"
+    },
+    {
+      "id": 2,
+      "name": "Bwindi Impenetrable Forest",
+      "image": "/images/bwindi.jpg",
+      "description": "Visit the home of the endangered mountain gorillas. A UNESCO World Heritage Site offering unforgettable gorilla trekking experiences.",
+      "rating": 4.9,
+      "price": 1500,
+      "currency": "USD",
+      "location": "Uganda"
+    },
+    {
+      "id": 3,
+      "name": "Queen Elizabeth National Park",
+      "image": "/images/queen-elizabeth.jpg",
+      "description": "Experience diverse wildlife, including tree-climbing lions, elephants, and over 600 bird species in one of Uganda's most famous parks.",
+      "rating": 4.7,
+      "price": 900,
+      "currency": "USD",
+      "location": "Uganda"
+    }
+  ]
+  

@@ -1,0 +1,24 @@
+[
+    {
+      "id": 1,
+      "destinationId": 1,
+      "user": "John Doe",
+      "rating": 5,
+      "comment": "The Rwenzori trek was life-changing! The guides were knowledgeable, and the scenery was breathtaking."
+    },
+    {
+      "id": 2,
+      "destinationId": 2,
+      "user": "Jane Smith",
+      "rating": 5,
+      "comment": "Gorilla trekking in Bwindi was a dream come true. Highly recommend this once-in-a-lifetime experience!"
+    },
+    {
+      "id": 3,
+      "destinationId": 3,
+      "user": "Alice Johnson",
+      "rating": 4.5,
+      "comment": "Queen Elizabeth National Park was incredible. We saw lions, elephants, and even a leopard!"
+    }
+  ]
+  

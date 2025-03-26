@@ -1,0 +1,42 @@
+{
+  "name": "the_rwenzoris",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"next dev --turbopack\" \"npx @tailwindcss/cli -i ./src/input.css -o ./src/output.css --watch\"",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
+    "@tailwindcss/cli": "^4.0.15",
+    "axios": "^1.8.4",
+    "firebase": "^11.5.0",
+    "framer-motion": "^12.5.0",
+    "i18next": "^24.2.3",
+    "i18next-http-backend": "^3.0.2",
+    "leaflet": "^1.9.4",
+    "next": "^15.2.3",
+    "next-pwa": "^5.6.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-i18next": "^15.4.1",
+    "react-icons": "^5.5.0",
+    "react-leaflet": "^5.0.0",
+    "socket.io-client": "^4.7.5",
+    "tailwindcss": "^4.0.15",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20.17.25",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.21",
+    "concurrently": "^8.2.2",
+    "eslint": "^9",
+    "eslint-config-next": "15.2.3",
+    "typescript": "^5"
+  }
+}

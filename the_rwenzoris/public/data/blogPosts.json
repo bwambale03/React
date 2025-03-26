@@ -1,0 +1,21 @@
+[
+    {
+      "id": 1,
+      "title": "Top 5 Reasons to Visit the Rwenzori Mountains",
+      "image": "/images/rwenzori-blog.jpg",
+      "excerpt": "Discover why the Rwenzori Mountains are a must-visit destination for adventure seekers and nature lovers.",
+      "content": "The Rwenzori Mountains, often referred to as the 'Mountains of the Moon,' offer some of the most unique trekking experiences in the world...",
+      "author": "Travel Guru",
+      "date": "2023-10-01"
+    },
+    {
+      "id": 2,
+      "title": "Gorilla Trekking in Bwindi: What You Need to Know",
+      "image": "/images/bwindi-blog.jpg",
+      "excerpt": "Everything you need to know before embarking on a gorilla trekking adventure in Bwindi Impenetrable Forest.",
+      "content": "Bwindi Impenetrable Forest is home to nearly half of the world's remaining mountain gorillas...",
+      "author": "Wildlife Enthusiast",
+      "date": "2023-09-25"
+    }
+  ]
+  
